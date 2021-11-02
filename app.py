@@ -104,6 +104,29 @@ def fulfill():
     return jsonify(res)
 
 
+@app.route('/raw_status', methods=['POST', 'GET'])
+def raw_status():
+    @after_this_request
+    def add_header(response):
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
+
+    machines = get_machines('http://washalert.washlaundry.com/washalertweb/calpoly/WASHALERtweb.aspx?location=676b5302-485a-4edb-8b36-a20d82a3ae20')
+    messages = status_message(machines)
+
+    one_dimensional = []
+    for category in machines:
+        one_dimensional += category
+
+    result = {
+        'machines': [[x.type, x.title, x.time] for x in one_dimensional],
+        'messages': messages
+
+    }
+
+    return jsonify(result)
+
+
 if __name__ == '__main__':
     machines = get_machines('http://washalert.washlaundry.com/washalertweb/calpoly/WASHALERtweb.aspx?location=676b5302-485a-4edb-8b36-a20d82a3ae20')
     print(machines)
