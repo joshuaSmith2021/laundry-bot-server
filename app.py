@@ -4,14 +4,20 @@ import requests
 
 from bs4 import BeautifulSoup
 
+from flask import Flask, request, jsonify, after_this_request
+app = Flask(__name__)
+
 COMPLETE_STATUSES = ['End of cycle', 'Available']
+LAUNDRY_URL = 'http://washalert.washlaundry.com/washalertweb/calpoly/WASHALERtweb.aspx?location=676b5302-485a-4edb-8b36-a20d82a3ae20'
+
 
 class Machine:
     def __init__(self, **kwargs):
         self.title = kwargs['name']
         self.type = kwargs['type']
         self.status = kwargs['status']
-        self.time = kwargs['time'] if kwargs['status'] not in COMPLETE_STATUSES else kwargs['status']
+        self.time = kwargs['time'] \
+            if kwargs['status'] not in COMPLETE_STATUSES else kwargs['status']
 
     def __repr__(self):
         return self.__str__()
@@ -45,7 +51,8 @@ def get_machines(url):
     machines = []
 
     for row in soup.find_all('tr'):
-        if not row.has_attr('class'): continue
+        if not row.has_attr('class'):
+            continue
 
         machine_data = {}
 
@@ -66,21 +73,24 @@ def status_message(machines):
 
     for i, machine_set in enumerate(machines):
         machine_type = 'washer' if i == 0 else 'dryer'
-        statuses = list(zip(machine_set, [x.get_status() for x in machine_set]))
+        statuses = list(zip(machine_set,
+                            [x.get_status() for x in machine_set]))
 
         if not all([x[1] for x in [*statuses]]):
             available = [x[0] for x in [*statuses] if not x[1]]
+
             quan = len(available)
-            messages.append(f'There {"is" if quan == 1 else "are"} {quan} {machine_type}{"s" if quan > 1 else ""} available')
+            verb = {"is" if quan == 1 else "are"}
+            plural = "s" if quan > 1 else ""
+
+            messages.append(f'There {verb} {quan} {machine_type}{plural} available')
         else:
             shortest = min([x[1] for x in [*statuses] if x[1]])
-            messages.append(f'There is a {machine_type} available in {shortest} minute{"s" if shortest > 1 else ""}')
+            plural = "s" if shortest > 1 else ""
+            messages.append(f'There is a {machine_type} available in {shortest} minute{plural}')
 
     return messages
 
-
-from flask import Flask, request, jsonify, after_this_request
-app = Flask(__name__)
 
 @app.route('/fulfillment', methods=['POST', 'GET'])
 def fulfill():
@@ -89,7 +99,7 @@ def fulfill():
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response
 
-    machines = get_machines('http://washalert.washlaundry.com/washalertweb/calpoly/WASHALERtweb.aspx?location=676b5302-485a-4edb-8b36-a20d82a3ae20')
+    machines = get_machines(LAUNDRY_URL)
     messages = status_message(machines)
 
     res = {
@@ -111,7 +121,7 @@ def raw_status():
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response
 
-    machines = get_machines('http://washalert.washlaundry.com/washalertweb/calpoly/WASHALERtweb.aspx?location=676b5302-485a-4edb-8b36-a20d82a3ae20')
+    machines = get_machines(LAUNDRY_URL)
     messages = status_message(machines)
 
     one_dimensional = []
@@ -128,7 +138,6 @@ def raw_status():
 
 
 if __name__ == '__main__':
-    machines = get_machines('http://washalert.washlaundry.com/washalertweb/calpoly/WASHALERtweb.aspx?location=676b5302-485a-4edb-8b36-a20d82a3ae20')
+    machines = get_machines(LAUNDRY_URL)
     print(machines)
     status_message(machines)
-
