@@ -1,5 +1,7 @@
 import base64
+import datetime
 import json
+from os import access
 import requests
 
 with open('secret/spotify.json') as f:
@@ -35,7 +37,29 @@ def get_refreshed_access_token(refresh_token):
                             'refresh_token': refresh_token,
                         })
 
-    print(req.json())
+    return req.json()
+
+
+def update_access_token(refresh_token):
+    new_token = get_refreshed_access_token(refresh_token)
+
+    access_token = new_token['access_token']
+    expiration = datetime.datetime.now().timestamp() + 3600
+
+    data['access_token'] = access_token
+    data['expiration'] = expiration
+
+    with open('secret/spotify.json', 'w') as f:
+        f.write(json.dumps(data, indent=4, sort_keys=True))
+
+
+def get_access_token():
+    seconds = datetime.datetime.now().timestamp()
+
+    if seconds + 30 > data['expiration']:
+        update_access_token(data['refresh_token'])
+
+    return data['access_token']
 
 
 def get_playback_status(token):
@@ -57,8 +81,8 @@ def queue_song(token, uri):
 
     req = requests.post(f'https://api.spotify.com/v1/me/player/queue?uri={uri}', headers=headers)
 
-    # 204 is what we want to see
-    print(req.status_code)
+    # 204 is what we want to see for status code
+    return req
 
 
 def search_song(token, query, limit=10, types=['track']):
@@ -77,7 +101,10 @@ def search_song(token, query, limit=10, types=['track']):
 
 
 if __name__ == '__main__':
-    get_refreshed_access_token(data["refresh_token"])
+    # get_refreshed_access_token(data["refresh_token"])
     # get_playback_status(data['access_token'])
     # queue_song(data['access_token'], 'spotify:track:4zm8xZiV5FxJu62EHEvZaT')
     # search_song(data['access_token'], 'uptown funk')
+    # update_access_token(data['refresh_token'])
+
+    print(get_access_token())

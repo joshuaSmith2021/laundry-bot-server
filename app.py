@@ -149,7 +149,7 @@ def playback_status():
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response
 
-    status = spotify.get_playback_status(SPOTIFY_DATA['access_token'])
+    status = spotify.get_playback_status(spotify.get_access_token())
 
     return jsonify(status.json())
 
@@ -163,7 +163,7 @@ def search_spotify():
 
     query = request.args.get('q')
 
-    search = spotify.search_song(SPOTIFY_DATA['access_token'], query)
+    search = spotify.search_song(spotify.get_access_token(), query)
 
     return jsonify(search.json())
 
@@ -177,9 +177,9 @@ def queue_song():
 
     uri = request.args.get('uri')
 
-    queue_request = spotify.queue_song(SPOTIFY_DATA['access_token'], uri)
+    queue_request = spotify.queue_song(spotify.get_access_token(), uri)
 
-    return jsonify(spotify.get_playback_status(SPOTIFY_DATA['access_token']).json())
+    return jsonify(spotify.get_playback_status(spotify.get_access_token()).json())
 
 
 if __name__ == '__main__':
