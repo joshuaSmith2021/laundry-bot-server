@@ -1,13 +1,20 @@
+import json
 import re
 import requests
 
 from bs4 import BeautifulSoup
 
 from flask import Flask, request, jsonify, after_this_request
+
+import spotify
+
 app = Flask(__name__)
 
 COMPLETE_STATUSES = ['End of cycle', 'Available']
 LAUNDRY_URL = 'http://washalert.washlaundry.com/washalertweb/calpoly/WASHALERtweb.aspx?location=676b5302-485a-4edb-8b36-a20d82a3ae20'
+
+with open('secret/spotify.json') as f:
+    SPOTIFY_DATA = json.loads(f.read())
 
 
 class Machine:
@@ -133,6 +140,46 @@ def raw_status():
     }
 
     return jsonify(result)
+
+
+@app.route('/playback_status', methods=['GET'])
+def playback_status():
+    @after_this_request
+    def add_header(response):
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
+
+    status = spotify.get_playback_status(SPOTIFY_DATA['access_token'])
+
+    return jsonify(status.json())
+
+
+@app.route('/search_spotify', methods=['GET'])
+def search_spotify():
+    @after_this_request
+    def add_header(response):
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
+
+    query = request.args.get('q')
+
+    search = spotify.search_song(SPOTIFY_DATA['access_token'], query)
+
+    return jsonify(search.json())
+
+
+@app.route('/queue_song', methods=['GET'])
+def queue_song():
+    @after_this_request
+    def add_header(response):
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
+
+    uri = request.args.get('uri')
+
+    queue_request = spotify.queue_song(SPOTIFY_DATA['access_token'], uri)
+
+    return jsonify(spotify.get_playback_status(SPOTIFY_DATA['access_token']).json())
 
 
 if __name__ == '__main__':

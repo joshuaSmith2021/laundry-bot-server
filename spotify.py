@@ -45,7 +45,8 @@ def get_playback_status(token):
     }
 
     req = requests.get('https://api.spotify.com/v1/me/player', headers=headers)
-    print(req.json())
+
+    return req
 
 
 def queue_song(token, uri):
@@ -60,7 +61,23 @@ def queue_song(token, uri):
     print(req.status_code)
 
 
+def search_song(token, query, limit=10, types=['track']):
+    headers = {
+        'Authorization': f'Bearer {token}',
+        'Content-Type': 'application/json'
+    }
+
+    req = requests.get('https://api.spotify.com/v1/search', headers=headers, params={
+        'q': query,
+        'type': types,
+        'limit': limit
+    })
+
+    return req
+
+
 if __name__ == '__main__':
-    # get_refreshed_access_token(data["refresh_token"])
+    get_refreshed_access_token(data["refresh_token"])
     # get_playback_status(data['access_token'])
-    queue_song(data['access_token'], 'spotify:track:4zm8xZiV5FxJu62EHEvZaT')
+    # queue_song(data['access_token'], 'spotify:track:4zm8xZiV5FxJu62EHEvZaT')
+    # search_song(data['access_token'], 'uptown funk')
