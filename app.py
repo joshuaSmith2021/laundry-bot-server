@@ -1,4 +1,3 @@
-import json
 import re
 import requests
 
@@ -131,7 +130,6 @@ def raw_status():
     result = {
         'machines': [[x.type, x.title, x.time] for x in one_dimensional],
         'messages': messages
-
     }
 
     return jsonify(result)
