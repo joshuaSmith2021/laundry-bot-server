@@ -86,7 +86,7 @@ def status_message(machines):
             available = [x[0] for x in [*statuses] if not x[1]]
 
             quan = len(available)
-            verb = {"is" if quan == 1 else "are"}
+            verb = "is" if quan == 1 else "are"
             plural = "s" if quan > 1 else ""
 
             messages.append(f'There {verb} {quan} {machine_type}{plural} available')
