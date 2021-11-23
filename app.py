@@ -1,11 +1,13 @@
 import json
 import re
+from flask.wrappers import Response
 import requests
 
 from bs4 import BeautifulSoup
 
-from flask import Flask, request, jsonify, after_this_request
+from flask import Flask, request, jsonify, after_this_request, Response
 
+import chess
 import spotify
 
 app = Flask(__name__)
@@ -180,6 +182,32 @@ def queue_song():
     queue_request = spotify.queue_song(spotify.get_access_token(), uri)
 
     return jsonify(spotify.get_playback_status(spotify.get_access_token()).json())
+
+
+@app.route('/get_pgn', methods=['GET'])
+def get_pgn():
+    functions = {
+        'lc': chess.get_lichess_games,
+        'cc': chess.get_chesscom_games
+    }
+
+    args = request.args
+
+    pgn = []
+    usernames = []
+    for site, username in args.items():
+        if site not in functions.keys():
+            continue
+
+        usernames.append(username)
+        pgn.append(functions[site](username))
+
+    pgn = '\n\n'.join(pgn)
+
+    if 'alias' in args.keys():
+        pgn = re.sub(f'({"|".join(usernames)})', args['alias'], pgn, flags=re.IGNORECASE)
+
+    return Response(pgn, mimetype='application/x-chess-pgn')
 
 
 if __name__ == '__main__':
