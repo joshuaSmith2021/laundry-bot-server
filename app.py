@@ -17,6 +17,17 @@ with open('secret/spotify.json') as f:
     SPOTIFY_DATA = json.loads(f.read())
 
 
+@app.route('/laundry_locations', methods=['GET'])
+def get_laundry_locations():
+    @after_this_request
+    def add_header(response):
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
+
+    all_sites = laundry.get_all_sites()
+    return jsonify(all_sites)
+
+
 @app.route('/fulfillment', methods=['POST', 'GET'])
 def fulfill():
     @after_this_request
