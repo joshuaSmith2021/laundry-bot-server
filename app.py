@@ -1,9 +1,6 @@
 import json
 import re
 from flask.wrappers import Response
-import requests
-
-from bs4 import BeautifulSoup
 
 from flask import Flask, request, jsonify, after_this_request, Response
 
