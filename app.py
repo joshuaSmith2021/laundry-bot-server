@@ -141,8 +141,3 @@ def get_pgn():
 
     return Response(pgn, mimetype='application/x-chess-pgn')
 
-
-if __name__ == '__main__':
-    machines = get_machines(LAUNDRY_URL)
-    print(machines)
-    status_message(machines)
