@@ -94,6 +94,8 @@ class Machine:
         self.time = kwargs['time'] \
             if re.search(r'\d+', kwargs['time']) else kwargs['status']
 
+        self.available = self.status in COMPLETE_STATUSES
+
     def __repr__(self):
         return self.__str__()
 
