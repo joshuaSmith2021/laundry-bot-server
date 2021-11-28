@@ -87,6 +87,9 @@ def get_all_sites():
 #######################################
 
 class Machine:
+    '''Class representing one machine. It can be a
+    washer or a dryer.
+    '''
     def __init__(self, **kwargs):
         self.title = kwargs['name']
         self.type = kwargs['type']
@@ -121,6 +124,10 @@ class Machine:
 
 
 def get_machines(location):
+    '''Returns a tuple containing two lists of machines.
+    [0]: List of machines, this is all of the washers.
+    [1]: List of machines, this is all of the dryers.
+    '''
     req = requests.get(f'{LOCATION_BASE_PATH}{location}')
 
     soup = BeautifulSoup(req.text, 'html.parser')
@@ -146,6 +153,10 @@ def get_machines(location):
 
 
 def status_message(machines):
+    '''This function accepts input from get_machines.
+    machines: Tuple containing two lists of machines.
+              See get_machines for more.
+    '''
     messages = []
 
     for i, machine_set in enumerate(machines):
