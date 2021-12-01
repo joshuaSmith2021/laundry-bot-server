@@ -1,0 +1,4 @@
+cd /home/joshuasmith6556/laundry-bot-server
+
+sudo /home/joshuasmith6556/laundry-bot-server/env/bin/gunicorn --certfile=/etc/letsencrypt/live/api.joshthings.com/fullchain.pem --keyfile=/etc/letsencrypt/live/api.joshthings.com/privkey.pem --bind 0.0.0.0:443 --workers=6 app:app
+
