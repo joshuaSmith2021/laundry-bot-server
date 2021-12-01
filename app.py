@@ -1,6 +1,5 @@
 import json
 import re
-from flask.wrappers import Response
 
 from flask import Flask, request, jsonify, after_this_request, Response
 
