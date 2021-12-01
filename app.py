@@ -65,7 +65,7 @@ def raw_status():
         one_dimensional += category
 
     result = {
-        'machines': [[x.type, x.title, x.time, x.available] for x in one_dimensional],
+        'machines': [[x.type, x.title, x.time, str(x.available)] for x in one_dimensional],
         'messages': messages
     }
 
